@@ -1,21 +1,24 @@
 "use client";
 
+import { useMemo, useState } from "react";
 import type { SceneSummary, SearchResponse } from "@/types";
 
 export default function ResultsPanel({
   resp,
+  hasSearched = false,
   selectedId,
   onSelect,
   onPage,
   onHover
 }: {
   resp: SearchResponse;
+  hasSearched?: boolean;
   selectedId?: string;
   onSelect: (scene_uid: string) => void;
   onPage: (p: number) => void;
   onHover?: (id?: string) => void;
 }) {
-  const totalPages = Math.max(1, Math.ceil(resp.total / resp.limit));
+  const totalPages = useMemo(() => Math.max(1, Math.ceil(resp.total / resp.limit)), [resp.total, resp.limit]);
 
   return (
     <div style={{ padding: 14 }}>
@@ -38,7 +41,12 @@ export default function ResultsPanel({
             onHover={onHover}
           />
         ))}
-        {resp.items.length === 0 && (
+        {resp.items.length === 0 && !hasSearched && (
+          <div className="ui-muted" style={{ marginTop: 10, lineHeight: 1.45 }}>
+            검색 조건을 설정한 뒤 <b>Search</b>를 눌러 결과를 불러오세요.
+          </div>
+        )}
+        {resp.items.length === 0 && hasSearched && (
           <div className="ui-muted" style={{ marginTop: 10 }}>
             No results
           </div>
@@ -50,7 +58,8 @@ export default function ResultsPanel({
           className="ui-btn"
           disabled={resp.page <= 1}
           onClick={() => onPage(resp.page - 1)}
-          style={{ opacity: resp.page <= 1 ? 0.4 : 1 }}
+          style={{ opacity: resp.page <= 1 ? 0.4 : 1, flex: 1 }}
+          type="button"
         >
           Prev
         </button>
@@ -58,7 +67,8 @@ export default function ResultsPanel({
           className="ui-btn"
           disabled={resp.page >= totalPages}
           onClick={() => onPage(resp.page + 1)}
-          style={{ opacity: resp.page >= totalPages ? 0.4 : 1 }}
+          style={{ opacity: resp.page >= totalPages ? 0.4 : 1, flex: 1 }}
+          type="button"
         >
           Next
         </button>
@@ -78,57 +88,85 @@ function SceneCard({
   onClick: () => void;
   onHover?: (id?: string) => void;
 }) {
+  const [imgFailed, setImgFailed] = useState(false);
+  const showImage = !!scene.assets.quicklook && !imgFailed;
+
   return (
     <div
       className={`ui-card ${selected ? "ui-card--selected" : ""}`}
       onClick={onClick}
       onMouseEnter={() => onHover?.(scene.scene_uid)}
       onMouseLeave={() => onHover?.(undefined)}
+      onKeyDown={(e) => {
+        if (e.key === "Enter" || e.key === " ") {
+          e.preventDefault();
+          onClick();
+        }
+      }}
+      role="button"
+      tabIndex={0}
       style={{
         padding: 12,
         cursor: "pointer",
         display: "grid",
-        gridTemplateColumns: "92px 1fr",
-        gap: 12
+        gridTemplateColumns: "96px 1fr",
+        gap: 12,
+        position: "relative"
       }}
     >
+      <span className="ui-badge" style={{ position: "absolute", top: 10, right: 10 }}>
+        {scene.product_id}
+      </span>
+
       <div
         style={{
-          width: 92,
-          height: 62,
-          borderRadius: 14,
-          border: "1px solid #e2e8f0",
+          width: 96,
+          height: 66,
+          borderRadius: 12,
+          border: "1px solid var(--border)",
           overflow: "hidden",
-          background: "#f1f5f9"
+          background: "#101b25",
+          position: "relative"
         }}
       >
-        {scene.assets.quicklook ? (
+        {showImage ? (
           <img
             src={scene.assets.quicklook}
-            alt=""
+            alt={`${scene.title} quicklook`}
             style={{ width: "100%", height: "100%", objectFit: "cover" }}
-            onError={(e) => {
-              (e.currentTarget as HTMLImageElement).style.display = "none";
-            }}
+            onError={() => setImgFailed(true)}
           />
-        ) : null}
-      </div>
-
-      <div style={{ minWidth: 0 }}>
-        <div style={{ display: "flex", gap: 8, alignItems: "center" }}>
+        ) : (
           <div
+            className="ui-skeleton"
             style={{
-              fontWeight: 800,
-              fontSize: 13,
-              whiteSpace: "nowrap",
-              overflow: "hidden",
-              textOverflow: "ellipsis",
-              letterSpacing: -0.1
+              width: "100%",
+              height: "100%",
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+              color: "var(--muted)",
+              fontSize: 11,
+              letterSpacing: 0.2
             }}
           >
-            {scene.title}
+            No preview
           </div>
-          <span className="ui-badge">{scene.product_id}</span>
+        )}
+      </div>
+
+      <div style={{ minWidth: 0, paddingRight: 72 }}>
+        <div
+          style={{
+            fontWeight: 800,
+            fontSize: 13,
+            whiteSpace: "nowrap",
+            overflow: "hidden",
+            textOverflow: "ellipsis",
+            letterSpacing: -0.1
+          }}
+        >
+          {scene.title}
         </div>
 
         <div className="ui-muted" style={{ fontSize: 12, marginTop: 6 }}>
