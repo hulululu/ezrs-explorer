@@ -1,0 +1,82 @@
+{
+  "products": [
+    { "product_id": "ndvi_monthly", "name": "NDVI Monthly", "legend_url": "/legends/ndvi_monthly.png", "type": "continuous" },
+    { "product_id": "flood_mask", "name": "Flood Mask", "legend_url": "/legends/flood_mask.png", "type": "classification" }
+  ],
+  "scenes": [
+    {
+      "scene_uid": "ndvi_monthly_2024-06_kor_west_001",
+      "product_id": "ndvi_monthly",
+      "title": "NDVI Monthly 2024-06 | West Korea AOI",
+      "datetime_start": "2024-06-01T00:00:00Z",
+      "datetime_end": "2024-06-30T23:59:59Z",
+      "sensors": ["Sentinel-2"],
+      "resolution_m": 10,
+      "bbox": [126.3, 36.0, 127.6, 37.2],
+      "footprint": {"type":"Polygon","coordinates":[[[126.3,36.0],[127.6,36.0],[127.6,37.2],[126.3,37.2],[126.3,36.0]]]},
+      "assets": {
+        "quicklook": "/quicklooks/ndvi_monthly_2024-06_kor_west_001.png",
+        "preview_tiles": "/tiles/ndvi_monthly/v1/2024-06/{z}/{x}/{y}.png"
+      }
+    },
+    {
+      "scene_uid": "ndvi_monthly_2024-07_kor_west_001",
+      "product_id": "ndvi_monthly",
+      "title": "NDVI Monthly 2024-07 | West Korea AOI",
+      "datetime_start": "2024-07-01T00:00:00Z",
+      "datetime_end": "2024-07-31T23:59:59Z",
+      "sensors": ["Sentinel-2"],
+      "resolution_m": 10,
+      "bbox": [126.3, 36.0, 127.6, 37.2],
+      "footprint": {"type":"Polygon","coordinates":[[[126.3,36.0],[127.6,36.0],[127.6,37.2],[126.3,37.2],[126.3,36.0]]]},
+      "assets": {
+        "quicklook": "/quicklooks/ndvi_monthly_2024-07_kor_west_001.png",
+        "preview_tiles": "/tiles/ndvi_monthly/v1/2024-07/{z}/{x}/{y}.png"
+      }
+    },
+    {
+      "scene_uid": "ndvi_monthly_2024-08_kor_west_001",
+      "product_id": "ndvi_monthly",
+      "title": "NDVI Monthly 2024-08 | West Korea AOI",
+      "datetime_start": "2024-08-01T00:00:00Z",
+      "datetime_end": "2024-08-31T23:59:59Z",
+      "sensors": ["Sentinel-2"],
+      "resolution_m": 10,
+      "bbox": [126.3, 36.0, 127.6, 37.2],
+      "footprint": {"type":"Polygon","coordinates":[[[126.3,36.0],[127.6,36.0],[127.6,37.2],[126.3,37.2],[126.3,36.0]]]},
+      "assets": {
+        "quicklook": "/quicklooks/ndvi_monthly_2024-08_kor_west_001.png",
+        "preview_tiles": "/tiles/ndvi_monthly/v1/2024-08/{z}/{x}/{y}.png"
+      }
+    },
+
+    { "scene_uid":"flood_mask_2024-07-10_kor_han_001","product_id":"flood_mask","title":"Flood Mask 2024-07-10 | Han River","datetime_start":"2024-07-10T00:00:00Z","datetime_end":"2024-07-10T23:59:59Z","sensors":["Sentinel-1","Sentinel-2"],"resolution_m":20,"bbox":[126.7,37.4,127.2,37.8],"footprint":{"type":"Polygon","coordinates":[[[126.7,37.4],[127.2,37.4],[127.2,37.8],[126.7,37.8],[126.7,37.4]]]},"assets":{"quicklook":"/quicklooks/flood_mask_2024-07-10_kor_han_001.png","preview_tiles":"/tiles/flood_mask/v1/2024-07-10/{z}/{x}/{y}.png"} },
+    { "scene_uid":"flood_mask_2024-07-18_kor_han_002","product_id":"flood_mask","title":"Flood Mask 2024-07-18 | Han River","datetime_start":"2024-07-18T00:00:00Z","datetime_end":"2024-07-18T23:59:59Z","sensors":["Sentinel-1"],"resolution_m":20,"bbox":[126.8,37.3,127.3,37.7],"footprint":{"type":"Polygon","coordinates":[[[126.8,37.3],[127.3,37.3],[127.3,37.7],[126.8,37.7],[126.8,37.3]]]},"assets":{"quicklook":"/quicklooks/flood_mask_2024-07-18_kor_han_002.png","preview_tiles":"/tiles/flood_mask/v1/2024-07-18/{z}/{x}/{y}.png"} },
+
+    { "scene_uid":"ndvi_monthly_2024-06_kor_south_001","product_id":"ndvi_monthly","title":"NDVI Monthly 2024-06 | South Korea AOI","datetime_start":"2024-06-01T00:00:00Z","datetime_end":"2024-06-30T23:59:59Z","sensors":["Sentinel-2","Landsat-8"],"resolution_m":30,"bbox":[127.0,34.5,128.6,35.8],"footprint":{"type":"Polygon","coordinates":[[[127.0,34.5],[128.6,34.5],[128.6,35.8],[127.0,35.8],[127.0,34.5]]]},"assets":{"quicklook":"/quicklooks/ndvi_monthly_2024-06_kor_south_001.png","preview_tiles":"/tiles/ndvi_monthly/v1/2024-06_south/{z}/{x}/{y}.png"} },
+    { "scene_uid":"ndvi_monthly_2024-07_kor_south_001","product_id":"ndvi_monthly","title":"NDVI Monthly 2024-07 | South Korea AOI","datetime_start":"2024-07-01T00:00:00Z","datetime_end":"2024-07-31T23:59:59Z","sensors":["Sentinel-2","Landsat-8"],"resolution_m":30,"bbox":[127.0,34.5,128.6,35.8],"footprint":{"type":"Polygon","coordinates":[[[127.0,34.5],[128.6,34.5],[128.6,35.8],[127.0,35.8],[127.0,34.5]]]},"assets":{"quicklook":"/quicklooks/ndvi_monthly_2024-07_kor_south_001.png","preview_tiles":"/tiles/ndvi_monthly/v1/2024-07_south/{z}/{x}/{y}.png"} },
+
+    { "scene_uid":"ndvi_monthly_2024-06_tokyo_001","product_id":"ndvi_monthly","title":"NDVI Monthly 2024-06 | Tokyo AOI","datetime_start":"2024-06-01T00:00:00Z","datetime_end":"2024-06-30T23:59:59Z","sensors":["Sentinel-2"],"resolution_m":10,"bbox":[139.3,35.4,140.2,36.0],"footprint":{"type":"Polygon","coordinates":[[[139.3,35.4],[140.2,35.4],[140.2,36.0],[139.3,36.0],[139.3,35.4]]]},"assets":{"quicklook":"/quicklooks/ndvi_monthly_2024-06_tokyo_001.png","preview_tiles":"/tiles/ndvi_monthly/v1/2024-06_tokyo/{z}/{x}/{y}.png"} },
+    { "scene_uid":"ndvi_monthly_2024-07_tokyo_001","product_id":"ndvi_monthly","title":"NDVI Monthly 2024-07 | Tokyo AOI","datetime_start":"2024-07-01T00:00:00Z","datetime_end":"2024-07-31T23:59:59Z","sensors":["Sentinel-2"],"resolution_m":10,"bbox":[139.3,35.4,140.2,36.0],"footprint":{"type":"Polygon","coordinates":[[[139.3,35.4],[140.2,35.4],[140.2,36.0],[139.3,36.0],[139.3,35.4]]]},"assets":{"quicklook":"/quicklooks/ndvi_monthly_2024-07_tokyo_001.png","preview_tiles":"/tiles/ndvi_monthly/v1/2024-07_tokyo/{z}/{x}/{y}.png"} },
+
+    { "scene_uid":"flood_mask_2024-08-03_vn_mekong_001","product_id":"flood_mask","title":"Flood Mask 2024-08-03 | Mekong AOI","datetime_start":"2024-08-03T00:00:00Z","datetime_end":"2024-08-03T23:59:59Z","sensors":["Sentinel-1","VIIRS"],"resolution_m":375,"bbox":[104.5,10.0,105.8,11.2],"footprint":{"type":"Polygon","coordinates":[[[104.5,10.0],[105.8,10.0],[105.8,11.2],[104.5,11.2],[104.5,10.0]]]},"assets":{"quicklook":"/quicklooks/flood_mask_2024-08-03_vn_mekong_001.png","preview_tiles":"/tiles/flood_mask/v1/2024-08-03_mekong/{z}/{x}/{y}.png"} },
+
+    { "scene_uid":"ndvi_monthly_2024-06_india_001","product_id":"ndvi_monthly","title":"NDVI Monthly 2024-06 | India AOI","datetime_start":"2024-06-01T00:00:00Z","datetime_end":"2024-06-30T23:59:59Z","sensors":["Landsat-9"],"resolution_m":30,"bbox":[76.0,18.0,77.8,19.5],"footprint":{"type":"Polygon","coordinates":[[[76.0,18.0],[77.8,18.0],[77.8,19.5],[76.0,19.5],[76.0,18.0]]]},"assets":{"quicklook":"/quicklooks/ndvi_monthly_2024-06_india_001.png","preview_tiles":"/tiles/ndvi_monthly/v1/2024-06_india/{z}/{x}/{y}.png"} },
+    { "scene_uid":"ndvi_monthly_2024-07_india_001","product_id":"ndvi_monthly","title":"NDVI Monthly 2024-07 | India AOI","datetime_start":"2024-07-01T00:00:00Z","datetime_end":"2024-07-31T23:59:59Z","sensors":["Landsat-9"],"resolution_m":30,"bbox":[76.0,18.0,77.8,19.5],"footprint":{"type":"Polygon","coordinates":[[[76.0,18.0],[77.8,18.0],[77.8,19.5],[76.0,19.5],[76.0,18.0]]]},"assets":{"quicklook":"/quicklooks/ndvi_monthly_2024-07_india_001.png","preview_tiles":"/tiles/ndvi_monthly/v1/2024-07_india/{z}/{x}/{y}.png"} },
+
+    { "scene_uid":"flood_mask_2024-06-22_us_miss_001","product_id":"flood_mask","title":"Flood Mask 2024-06-22 | Mississippi AOI","datetime_start":"2024-06-22T00:00:00Z","datetime_end":"2024-06-22T23:59:59Z","sensors":["Sentinel-1"],"resolution_m":20,"bbox":[-91.6,32.8,-90.2,34.0],"footprint":{"type":"Polygon","coordinates":[[[-91.6,32.8],[-90.2,32.8],[-90.2,34.0],[-91.6,34.0],[-91.6,32.8]]]},"assets":{"quicklook":"/quicklooks/flood_mask_2024-06-22_us_miss_001.png","preview_tiles":"/tiles/flood_mask/v1/2024-06-22_miss/{z}/{x}/{y}.png"} },
+
+    { "scene_uid":"ndvi_monthly_2024-08_brazil_001","product_id":"ndvi_monthly","title":"NDVI Monthly 2024-08 | Brazil AOI","datetime_start":"2024-08-01T00:00:00Z","datetime_end":"2024-08-31T23:59:59Z","sensors":["Sentinel-2","VIIRS"],"resolution_m":250,"bbox":[-48.0,-16.2,-46.8,-15.2],"footprint":{"type":"Polygon","coordinates":[[[-48.0,-16.2],[-46.8,-16.2],[-46.8,-15.2],[-48.0,-15.2],[-48.0,-16.2]]]},"assets":{"quicklook":"/quicklooks/ndvi_monthly_2024-08_brazil_001.png","preview_tiles":"/tiles/ndvi_monthly/v1/2024-08_brazil/{z}/{x}/{y}.png"} },
+
+    { "scene_uid":"ndvi_monthly_2024-06_egypt_001","product_id":"ndvi_monthly","title":"NDVI Monthly 2024-06 | Egypt AOI","datetime_start":"2024-06-01T00:00:00Z","datetime_end":"2024-06-30T23:59:59Z","sensors":["Sentinel-2"],"resolution_m":10,"bbox":[30.5,30.0,31.6,31.2],"footprint":{"type":"Polygon","coordinates":[[[30.5,30.0],[31.6,30.0],[31.6,31.2],[30.5,31.2],[30.5,30.0]]]},"assets":{"quicklook":"/quicklooks/ndvi_monthly_2024-06_egypt_001.png","preview_tiles":"/tiles/ndvi_monthly/v1/2024-06_egypt/{z}/{x}/{y}.png"} },
+    { "scene_uid":"ndvi_monthly_2024-07_egypt_001","product_id":"ndvi_monthly","title":"NDVI Monthly 2024-07 | Egypt AOI","datetime_start":"2024-07-01T00:00:00Z","datetime_end":"2024-07-31T23:59:59Z","sensors":["Sentinel-2"],"resolution_m":10,"bbox":[30.5,30.0,31.6,31.2],"footprint":{"type":"Polygon","coordinates":[[[30.5,30.0],[31.6,30.0],[31.6,31.2],[30.5,31.2],[30.5,30.0]]]},"assets":{"quicklook":"/quicklooks/ndvi_monthly_2024-07_egypt_001.png","preview_tiles":"/tiles/ndvi_monthly/v1/2024-07_egypt/{z}/{x}/{y}.png"} },
+
+    { "scene_uid":"flood_mask_2024-07-28_id_java_001","product_id":"flood_mask","title":"Flood Mask 2024-07-28 | Java AOI","datetime_start":"2024-07-28T00:00:00Z","datetime_end":"2024-07-28T23:59:59Z","sensors":["Sentinel-1"],"resolution_m":20,"bbox":[110.0,-7.9,111.6,-6.9],"footprint":{"type":"Polygon","coordinates":[[[110.0,-7.9],[111.6,-7.9],[111.6,-6.9],[110.0,-6.9],[110.0,-7.9]]]},"assets":{"quicklook":"/quicklooks/flood_mask_2024-07-28_id_java_001.png","preview_tiles":"/tiles/flood_mask/v1/2024-07-28_java/{z}/{x}/{y}.png"} },
+
+    { "scene_uid":"ndvi_monthly_2024-08_kor_east_001","product_id":"ndvi_monthly","title":"NDVI Monthly 2024-08 | East Korea AOI","datetime_start":"2024-08-01T00:00:00Z","datetime_end":"2024-08-31T23:59:59Z","sensors":["Sentinel-2"],"resolution_m":10,"bbox":[128.7,37.0,129.6,38.0],"footprint":{"type":"Polygon","coordinates":[[[128.7,37.0],[129.6,37.0],[129.6,38.0],[128.7,38.0],[128.7,37.0]]]},"assets":{"quicklook":"/quicklooks/ndvi_monthly_2024-08_kor_east_001.png","preview_tiles":"/tiles/ndvi_monthly/v1/2024-08_kor_east/{z}/{x}/{y}.png"} },
+
+    { "scene_uid":"flood_mask_2024-08-14_ph_luzon_001","product_id":"flood_mask","title":"Flood Mask 2024-08-14 | Luzon AOI","datetime_start":"2024-08-14T00:00:00Z","datetime_end":"2024-08-14T23:59:59Z","sensors":["Sentinel-1","Kompsat"],"resolution_m":5,"bbox":[120.6,14.8,121.4,15.6],"footprint":{"type":"Polygon","coordinates":[[[120.6,14.8],[121.4,14.8],[121.4,15.6],[120.6,15.6],[120.6,14.8]]]},"assets":{"quicklook":"/quicklooks/flood_mask_2024-08-14_ph_luzon_001.png","preview_tiles":"/tiles/flood_mask/v1/2024-08-14_luzon/{z}/{x}/{y}.png"} },
+
+    { "scene_uid":"ndvi_monthly_2024-07_us_ca_001","product_id":"ndvi_monthly","title":"NDVI Monthly 2024-07 | California AOI","datetime_start":"2024-07-01T00:00:00Z","datetime_end":"2024-07-31T23:59:59Z","sensors":["Landsat-8","VIIRS"],"resolution_m":250,"bbox":[-122.7,37.0,-121.6,38.1],"footprint":{"type":"Polygon","coordinates":[[[-122.7,37.0],[-121.6,37.0],[-121.6,38.1],[-122.7,38.1],[-122.7,37.0]]]},"assets":{"quicklook":"/quicklooks/ndvi_monthly_2024-07_us_ca_001.png","preview_tiles":"/tiles/ndvi_monthly/v1/2024-07_us_ca/{z}/{x}/{y}.png"} }
+  ]
+}

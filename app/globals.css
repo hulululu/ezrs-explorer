@@ -1,0 +1,130 @@
+@import "tailwindcss";
+
+:root {
+  --background: #ffffff;
+  --foreground: #171717;
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --font-sans: var(--font-geist-sans);
+  --font-mono: var(--font-geist-mono);
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --background: #0a0a0a;
+    --foreground: #ededed;
+  }
+}
+
+body {
+  background: var(--background);
+  color: var(--foreground);
+  font-family: Arial, Helvetica, sans-serif;
+}
+
+/* 페이지 전체 톤 */
+html, body {
+  height: 100%;
+}
+
+body {
+  margin: 0;
+  background: #f8fafc; /* slate-50 느낌 */
+  color: #0f172a;      /* slate-900 */
+}
+
+/* 공통 UI */
+.ui-panel {
+  background: #ffffff;
+  border: 1px solid #e2e8f0; /* slate-200 */
+  border-radius: 16px;
+  box-shadow: 0 8px 24px rgba(15, 23, 42, 0.06);
+}
+
+.ui-card {
+  background: #ffffff;
+  border: 1px solid #e2e8f0;
+  border-radius: 16px;
+  box-shadow: 0 8px 24px rgba(15, 23, 42, 0.06);
+  transition: transform 120ms ease, box-shadow 120ms ease, border-color 120ms ease;
+}
+
+.ui-card:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 12px 30px rgba(15, 23, 42, 0.10);
+  border-color: #cbd5e1; /* slate-300 */
+}
+
+.ui-card--selected {
+  border-color: #2563eb; /* blue-600 */
+  box-shadow: 0 12px 34px rgba(37, 99, 235, 0.18);
+}
+
+.ui-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 3px 8px;
+  border-radius: 999px;
+  border: 1px solid #e2e8f0;
+  background: #f1f5f9; /* slate-100 */
+  color: #334155;      /* slate-700 */
+  font-size: 12px;
+}
+
+.ui-btn {
+  border: 1px solid #e2e8f0;
+  background: #ffffff;
+  border-radius: 12px;
+  padding: 10px 12px;
+  cursor: pointer;
+  transition: background 120ms ease, border-color 120ms ease, transform 120ms ease;
+}
+
+.ui-btn:hover {
+  background: #f8fafc;
+  border-color: #cbd5e1;
+  transform: translateY(-1px);
+}
+
+.ui-btn-primary {
+  border-color: #1d4ed8; /* blue-700 */
+  background: #2563eb;   /* blue-600 */
+  color: #ffffff;
+}
+
+.ui-btn-primary:hover {
+  background: #1d4ed8;
+  border-color: #1e40af;
+}
+
+.ui-divider {
+  border-right: 1px solid #e2e8f0;
+}
+
+.ui-muted {
+  color: #64748b; /* slate-500 */
+}
+
+.ui-input {
+  width: 100%;
+  border: 1px solid #e2e8f0;
+  border-radius: 12px;
+  padding: 10px 12px;
+  outline: none;
+  background: #fff;
+}
+
+.ui-input:focus {
+  border-color: #2563eb;
+  box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.15);
+}
+
+/* 지도 위 glass 패널 */
+.ui-glass {
+  background: rgba(255, 255, 255, 0.82);
+  border: 1px solid rgba(226, 232, 240, 0.9);
+  border-radius: 16px;
+  box-shadow: 0 12px 30px rgba(15, 23, 42, 0.10);
+  backdrop-filter: blur(10px);
+}
