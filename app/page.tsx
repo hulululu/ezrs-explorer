@@ -1,6 +1,5 @@
 "use client";
 
-import AppHeader from "@/components/Shell/AppHeader";
 import SearchPanel from "@/components/Search/SearchPanel";
 import ResultsPanel from "@/components/Results/ResultsPanel";
 import MapView from "@/components/Map/MapView";
@@ -9,6 +8,9 @@ import type { Product, SceneSummary, SearchQuery, SearchResponse } from "@/types
 import { useEffect, useMemo, useState } from "react";
 import { fetchProducts } from "@/lib/api/products";
 import { searchScenes } from "@/lib/api/scenes";
+import { useAuth } from "@/lib/auth/useAuth";
+import { signOut } from "firebase/auth";
+import { getFirebaseAuth } from "@/lib/auth/firebase";
 
 export default function Page() {
   const [products, setProducts] = useState<Product[]>([]);
@@ -16,7 +18,7 @@ export default function Page() {
     product_id: undefined,
     date_start: undefined,
     date_end: undefined,
-    roi_bbox: [126.5, 36.0, 127.5, 37.0],
+    roi_bbox: [0, 0, 0, 0],
     page: 1,
     limit: 20
   });
@@ -25,10 +27,14 @@ export default function Page() {
   const [selectedId, setSelectedId] = useState<string | undefined>(undefined);
   const [hoveredId, setHoveredId] = useState<string | undefined>(undefined);
   const [roiEditMode, setRoiEditMode] = useState(false);
+  const [hasSearched, setHasSearched] = useState(false);
+  const [showResults, setShowResults] = useState(false);
 
   const [opacity, setOpacity] = useState(0.7);
   const [loading, setLoading] = useState(false);
   const [errMsg, setErrMsg] = useState<string | null>(null);
+
+  const { user } = useAuth();
 
   const selectedScene: SceneSummary | undefined = useMemo(() => {
     if (!selectedId) return undefined;
@@ -41,19 +47,10 @@ export default function Page() {
         setErrMsg(null);
         const ps = await fetchProducts();
         setProducts(ps);
-
-        setLoading(true);
-        const r = await searchScenes(query);
-        setResp(r);
-
-        setSelectedId(r.items[0]?.scene_uid);
       } catch (e: unknown) {
         setErrMsg(e instanceof Error ? e.message : String(e));
-      } finally {
-        setLoading(false);
       }
     })();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   async function onSearch() {
@@ -61,6 +58,8 @@ export default function Page() {
       setErrMsg(null);
       setLoading(true);
       setRoiEditMode(false);
+      setHasSearched(true);
+      setShowResults(true);
 
       const r = await searchScenes({ ...query, page: 1 });
       setResp(r);
@@ -93,15 +92,57 @@ export default function Page() {
     }
   }
 
-  return (
-    <div style={{ height: "100vh" }}>
-      <div style={{ height: 56 }}>
-        <AppHeader />
-      </div>
+  async function onLogout() {
+    try {
+      await signOut(getFirebaseAuth());
+    } catch {
+      setErrMsg("Failed to logout");
+    }
+  }
 
-      <div style={{ height: "calc(100vh - 56px)" }}>
-        <div style={{ display: "grid", gridTemplateColumns: "360px 420px 1fr", height: "100%" }}>
-          <div style={{ borderRight: "1px solid #e5e5e5", overflow: "auto" }}>
+  return (
+    <div style={{ height: "100vh", display: "flex", flexDirection: "column" }}>
+      <header
+        className="ui-glass"
+        style={{
+          height: 56,
+          margin: "8px 10px 0",
+          padding: "0 14px",
+          borderRadius: 12,
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "space-between"
+        }}
+      >
+        <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
+          <div style={{ width: 10, height: 10, borderRadius: 999, background: "var(--accent)", boxShadow: "0 0 10px rgba(34,211,238,0.8)" }} />
+          <div style={{ fontWeight: 800, letterSpacing: 0.2 }}>ezRS Explorer</div>
+          <span className="ui-badge">Demo</span>
+        </div>
+
+        <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
+          <span className="ui-muted" style={{ fontSize: 12 }}>
+            {user?.email ?? "Not signed in"}
+          </span>
+          {user ? (
+            <button className="ui-btn" onClick={onLogout} type="button">
+              Logout
+            </button>
+          ) : null}
+        </div>
+      </header>
+
+      <div style={{ flex: 1, minHeight: 0, padding: "8px 10px 10px" }}>
+        <div
+          className="ui-panel ui-shadow"
+          style={{
+            display: "grid",
+            gridTemplateColumns: showResults ? "352px 400px 1fr" : "352px 1fr",
+            height: "100%",
+            overflow: "hidden"
+          }}
+        >
+          <div className="ui-divider" style={{ overflow: "auto" }}>
             <SearchPanel
               products={products}
               query={query}
@@ -109,13 +150,13 @@ export default function Page() {
               onSearch={onSearch}
             />
 
-            <div style={{ padding: "0 14px 14px", fontSize: 12, color: "#666", lineHeight: 1.35 }}>
-              {loading ? "Loading..." : null}
-              {errMsg ? <div style={{ color: "crimson", marginTop: 8 }}>Error: {errMsg}</div> : null}
-              <div style={{ marginTop: 10 }}>
+            <div style={{ padding: "0 14px 14px", fontSize: 12, lineHeight: 1.4 }}>
+              {loading ? <div className="ui-muted">Loading...</div> : null}
+              {errMsg ? <div style={{ color: "var(--danger)", marginTop: 8 }}>Error: {errMsg}</div> : null}
+              <div className="ui-muted" style={{ marginTop: 10 }}>
                 Tip: Turn <b>ROI ON</b> and drag on the map to set a bounding box.
               </div>
-              <div style={{ marginTop: 10, color: "#64748b" }}>
+              <div className="ui-muted" style={{ marginTop: 10 }}>
                 SelectedId: <b>{selectedId ?? "-"}</b>
                 <br />
                 SelectedScene: <b>{selectedScene?.scene_uid ?? "-"}</b>
@@ -123,15 +164,18 @@ export default function Page() {
             </div>
           </div>
 
-          <div style={{ borderRight: "1px solid #e5e5e5", overflow: "auto" }}>
-            <ResultsPanel
-              resp={resp}
-              selectedId={selectedId}
-              onSelect={setSelectedId}
-              onPage={onPage}
-              onHover={setHoveredId}
-            />
-          </div>
+          {showResults ? (
+            <div className="ui-divider" style={{ overflow: "auto" }}>
+              <ResultsPanel
+                resp={resp}
+                hasSearched={hasSearched}
+                selectedId={selectedId}
+                onSelect={setSelectedId}
+                onPage={onPage}
+                onHover={setHoveredId}
+              />
+            </div>
+          ) : null}
 
           <div style={{ overflow: "hidden", position: "relative" }}>
             <MapView
@@ -142,6 +186,18 @@ export default function Page() {
               opacity={opacity}
               onOpacity={setOpacity}
               roiEditMode={roiEditMode}
+              onToggleRoiMode={() => setRoiEditMode((v) => !v)}
+              onStopRoiMode={() => setRoiEditMode(false)}
+              showResultsToggle={hasSearched}
+              showResults={showResults}
+              onToggleResults={() => setShowResults((v) => !v)}
+              onResetRoi={() =>
+                setQuery((q) => ({
+                  ...q,
+                  roi_bbox: [0, 0, 0, 0],
+                  page: 1
+                }))
+              }
               onRoiBBoxChange={(b) =>
                 setQuery((q) => ({
                   ...q,
@@ -153,78 +209,6 @@ export default function Page() {
               onPickScene={setSelectedId}
               onHoverScene={setHoveredId}
             />
-
-            <div style={{ position: "absolute", left: 12, top: 12, zIndex: 30, display: "flex", gap: 8 }}>
-              <button
-                onClick={() => setRoiEditMode((v) => !v)}
-                style={{
-                  padding: "8px 10px",
-                  borderRadius: 12,
-                  border: "1px solid #ddd",
-                  background: roiEditMode ? "#111" : "#fff",
-                  color: roiEditMode ? "#fff" : "#111",
-                  cursor: "pointer"
-                }}
-                title="Toggle ROI edit mode"
-              >
-                ROI {roiEditMode ? "ON" : "OFF"}
-              </button>
-
-              {roiEditMode ? (
-                <button
-                  onClick={() => setRoiEditMode(false)}
-                  style={{
-                    padding: "8px 10px",
-                    borderRadius: 12,
-                    border: "1px solid #ddd",
-                    background: "#fff",
-                    cursor: "pointer"
-                  }}
-                  title="Stop ROI edit mode"
-                >
-                  Done
-                </button>
-              ) : null}
-
-              <button
-                onClick={() =>
-                  setQuery((q) => ({
-                    ...q,
-                    roi_bbox: [126.5, 36.0, 127.5, 37.0],
-                    page: 1
-                  }))
-                }
-                style={{
-                  padding: "8px 10px",
-                  borderRadius: 12,
-                  border: "1px solid #ddd",
-                  background: "#fff",
-                  cursor: "pointer"
-                }}
-                title="Reset ROI to default"
-              >
-                Reset ROI
-              </button>
-            </div>
-
-            {roiEditMode ? (
-              <div
-                style={{
-                  position: "absolute",
-                  left: 12,
-                  top: 54,
-                  zIndex: 30,
-                  padding: "8px 10px",
-                  borderRadius: 12,
-                  border: "1px solid #e5e5e5",
-                  background: "rgba(255,255,255,0.92)",
-                  fontSize: 12,
-                  color: "#333"
-                }}
-              >
-                ROI mode ON: drag on the map to set a ROI box.
-              </div>
-            ) : null}
           </div>
         </div>
       </div>

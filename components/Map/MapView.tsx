@@ -4,6 +4,7 @@ import "maplibre-gl/dist/maplibre-gl.css";
 import maplibregl, { Map } from "maplibre-gl";
 import { useEffect, useMemo, useRef, useState } from "react";
 import type { SceneSummary } from "@/types";
+import type { Feature, FeatureCollection, GeoJsonProperties, Geometry, Polygon } from "geojson";
 
 const ROI_SOURCE = "roi-source";
 const ROI_LAYER = "roi-layer";
@@ -30,6 +31,12 @@ type Props = {
   hoveredSceneId?: string;
   onPickScene?: (id: string) => void;
   onHoverScene?: (id?: string) => void;
+  onToggleRoiMode?: () => void;
+  onStopRoiMode?: () => void;
+  showResultsToggle?: boolean;
+  showResults?: boolean;
+  onToggleResults?: () => void;
+  onResetRoi?: () => void;
 };
 
 export default function MapView({
@@ -43,7 +50,13 @@ export default function MapView({
   roiEditMode,
   hoveredSceneId,
   onPickScene,
-  onHoverScene
+  onHoverScene,
+  onToggleRoiMode,
+  onStopRoiMode,
+  showResultsToggle,
+  showResults,
+  onToggleResults,
+  onResetRoi
 }: Props) {
   const mapRef = useRef<Map | null>(null);
   const divRef = useRef<HTMLDivElement | null>(null);
@@ -92,13 +105,24 @@ export default function MapView({
             tileSize: 256
           }
         },
-        layers: [{ id: "osm", type: "raster", source: "osm" }]
+        layers: [
+          {
+            id: "osm",
+            type: "raster",
+            source: "osm",
+            paint: {
+              "raster-brightness-max": 0.65,
+              "raster-brightness-min": 0.12,
+              "raster-saturation": -0.45,
+              "raster-contrast": 0.28
+            }
+          }
+        ]
       },
       center: [127.0, 36.5],
-      zoom: 7
+      zoom: 5.5
     });
 
-    map.addControl(new maplibregl.NavigationControl(), "top-right");
     map.boxZoom.disable();
 
     mapRef.current = map;
@@ -213,7 +237,7 @@ export default function MapView({
         id: ROI_LAYER,
         type: "line",
         source: ROI_SOURCE,
-        paint: { "line-width": 2, "line-color": "#111", "line-opacity": 0.9 }
+        paint: { "line-width": 2, "line-color": "#d3e6ff", "line-opacity": 0.92 }
       });
 
       map.addSource(FOOT_SOURCE, { type: "geojson", data: emptyFC() });
@@ -221,20 +245,20 @@ export default function MapView({
         id: FOOT_LAYER,
         type: "line",
         source: FOOT_SOURCE,
-        paint: { "line-width": 2, "line-color": "#2563eb", "line-opacity": 0.6 }
+        paint: { "line-width": 2, "line-color": "#2bd9ff", "line-opacity": 0.52 }
       });
       map.addLayer({
         id: FOOT_HOVER_LAYER,
         type: "line",
         source: FOOT_SOURCE,
-        paint: { "line-width": 2, "line-color": "#ff6600", "line-opacity": 1 },
+        paint: { "line-width": 2.6, "line-color": "#ffd166", "line-opacity": 0.96 },
         filter: ["==", ["get", "scene_uid"], NONE_UID]
       });
       map.addLayer({
         id: FOOT_SEL_LAYER,
         type: "line",
         source: FOOT_SOURCE,
-        paint: { "line-width": 3, "line-color": "#0066ff", "line-opacity": 1 },
+        paint: { "line-width": 3.4, "line-color": "#31f5ff", "line-opacity": 1 },
         filter: ["==", ["get", "scene_uid"], NONE_UID]
       });
 
@@ -243,8 +267,8 @@ export default function MapView({
 
       const box = document.createElement("div");
       box.style.position = "absolute";
-      box.style.border = "2px solid #111";
-      box.style.background = "rgba(0,0,0,0.06)";
+      box.style.border = "2px solid #9cd8ff";
+      box.style.background = "rgba(44, 219, 255, 0.14)";
       box.style.pointerEvents = "none";
       box.style.display = "none";
       box.style.zIndex = "10";
@@ -371,6 +395,38 @@ export default function MapView({
     <div style={{ position: "relative", width: "100%", height: "100%" }}>
       <div ref={divRef} style={{ width: "100%", height: "100%" }} />
 
+      <div className="ui-glass" style={{ position: "absolute", left: 12, top: 12, zIndex: 30, display: "flex", gap: 8, padding: 8 }}>
+        <button
+          onClick={onToggleRoiMode}
+          className={roiEditMode ? "ui-btn ui-btn-primary" : "ui-btn"}
+          type="button"
+          title="Toggle ROI edit mode"
+        >
+          ROI {roiEditMode ? "ON" : "OFF"}
+        </button>
+        {roiEditMode ? (
+          <button onClick={onStopRoiMode} className="ui-btn" type="button" title="Stop ROI edit mode">
+            Done
+          </button>
+        ) : null}
+        <button onClick={onResetRoi} className="ui-btn" type="button" title="Reset ROI to default">
+          Reset ROI
+        </button>
+      </div>
+
+      {roiEditMode ? (
+        <div className="ui-glass ui-muted" style={{ position: "absolute", left: 12, top: 62, zIndex: 30, padding: "7px 10px", fontSize: 12 }}>
+          ROI mode ON: drag on map to set bbox.
+        </div>
+      ) : null}
+      {showResultsToggle ? (
+        <div className="ui-glass" style={{ position: "absolute", left: 12, top: roiEditMode ? 120 : 80, zIndex: 30, padding: 8 }}>
+          <button className="ui-btn" type="button" onClick={onToggleResults}>
+            {showResults ? "Hide Results" : "Show Results"}
+          </button>
+        </div>
+      ) : null}
+
       <div
         className="ui-glass"
         style={{
@@ -379,7 +435,8 @@ export default function MapView({
           bottom: 12,
           padding: "10px 12px",
           fontSize: 12,
-          minWidth: 220
+          minWidth: 220,
+          zIndex: 30
         }}
       >
         <div style={{ fontWeight: 800, marginBottom: 6, letterSpacing: -0.1 }}>Overlay</div>
@@ -390,11 +447,13 @@ export default function MapView({
           step={0.01}
           value={opacity}
           onChange={(e) => onOpacity(Number(e.target.value))}
-          style={{ width: "100%" }}
+          style={{ width: "100%", accentColor: "var(--accent2)" }}
         />
-        <div style={{ marginTop: 6, color: "#666" }}>Selected: {selectedId ?? "None"}</div>
-        <div style={{ marginTop: 6, color: "#666" }}>
-          ROI mode: <b>{roiEditMode ? "ON" : "OFF"}</b>
+        <div className="ui-muted" style={{ marginTop: 6 }}>
+          Selected: {selectedId ?? "None"}
+        </div>
+        <div className="ui-muted" style={{ marginTop: 4 }}>
+          ROI mode: <b style={{ color: "var(--text)" }}>{roiEditMode ? "ON" : "OFF"}</b>
         </div>
       </div>
     </div>
@@ -405,20 +464,20 @@ function round6(v: number) {
   return Math.round(v * 1e6) / 1e6;
 }
 
-function emptyFC() {
-  return { type: "FeatureCollection" as const, features: [] as unknown[] };
+function emptyFC(): FeatureCollection<Geometry, GeoJsonProperties> {
+  return { type: "FeatureCollection", features: [] };
 }
 
-function bboxToFeature(b: [number, number, number, number]) {
+function bboxToFeature(b: [number, number, number, number]): FeatureCollection<Polygon, GeoJsonProperties> {
   const [minLon, minLat, maxLon, maxLat] = b;
   return {
-    type: "FeatureCollection" as const,
+    type: "FeatureCollection",
     features: [
       {
-        type: "Feature" as const,
+        type: "Feature",
         properties: {},
         geometry: {
-          type: "Polygon" as const,
+          type: "Polygon",
           coordinates: [[[minLon, minLat], [maxLon, minLat], [maxLon, maxLat], [minLon, maxLat], [minLon, minLat]]]
         }
       }
@@ -426,25 +485,27 @@ function bboxToFeature(b: [number, number, number, number]) {
   };
 }
 
-function scenesToFeatureCollection(scenes: SceneSummary[]) {
-  return {
-    type: "FeatureCollection" as const,
-    features: scenes.map((s) => ({
-      type: "Feature" as const,
-      properties: { scene_uid: s.scene_uid },
-      geometry:
-        s.footprint ?? {
-          type: "Polygon" as const,
-          coordinates: [
-            [
-              [s.bbox[0], s.bbox[1]],
-              [s.bbox[2], s.bbox[1]],
-              [s.bbox[2], s.bbox[3]],
-              [s.bbox[0], s.bbox[3]],
-              [s.bbox[0], s.bbox[1]]
-            ]
+function scenesToFeatureCollection(scenes: SceneSummary[]): FeatureCollection<Geometry, GeoJsonProperties> {
+  const features: Feature<Geometry, GeoJsonProperties>[] = scenes.map((s) => ({
+    type: "Feature",
+    properties: { scene_uid: s.scene_uid },
+    geometry:
+      s.footprint ?? {
+        type: "Polygon",
+        coordinates: [
+          [
+            [s.bbox[0], s.bbox[1]],
+            [s.bbox[2], s.bbox[1]],
+            [s.bbox[2], s.bbox[3]],
+            [s.bbox[0], s.bbox[3]],
+            [s.bbox[0], s.bbox[1]]
           ]
-        }
-    }))
+        ]
+      }
+  }));
+
+  return {
+    type: "FeatureCollection",
+    features
   };
 }
