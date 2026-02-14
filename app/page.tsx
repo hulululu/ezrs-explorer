@@ -9,7 +9,7 @@ import { useEffect, useMemo, useState } from "react";
 import { fetchProducts } from "@/lib/api/products";
 import { searchScenes } from "@/lib/api/scenes";
 import { useAuth } from "@/lib/auth/useAuth";
-import { signOut } from "firebase/auth";
+import { GoogleAuthProvider, signInWithPopup, signOut } from "firebase/auth";
 import { getFirebaseAuth } from "@/lib/auth/firebase";
 
 export default function Page() {
@@ -92,11 +92,17 @@ export default function Page() {
     }
   }
 
-  async function onLogout() {
+  async function onAuthButtonClick() {
     try {
-      await signOut(getFirebaseAuth());
+      const auth = getFirebaseAuth();
+      if (user) {
+        await signOut(auth);
+      } else {
+        const provider = new GoogleAuthProvider();
+        await signInWithPopup(auth, provider);
+      }
     } catch {
-      setErrMsg("Failed to logout");
+      setErrMsg(user ? "Failed to logout" : "Failed to login");
     }
   }
 
@@ -124,11 +130,9 @@ export default function Page() {
           <span className="ui-muted" style={{ fontSize: 12 }}>
             {user?.email ?? "Not signed in"}
           </span>
-          {user ? (
-            <button className="ui-btn" onClick={onLogout} type="button">
-              Logout
-            </button>
-          ) : null}
+          <button className="ui-btn" onClick={onAuthButtonClick} type="button">
+            {user ? "Logout" : "Login"}
+          </button>
         </div>
       </header>
 
