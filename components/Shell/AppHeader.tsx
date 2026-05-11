@@ -2,13 +2,16 @@
 "use client";
 
 import { useAuth } from "@/lib/auth/useAuth";
+import { getFirebaseAuth } from "@/lib/auth/firebase";
+import { signOut } from "firebase/auth";
 
 export default function AppHeader() {
   const { user } = useAuth();
 
   const handleSignOut = async () => {
-    // Sign out logic here
-    // You may need to implement this based on your auth provider
+    const auth = getFirebaseAuth();
+    if (!auth) return;
+    await signOut(auth);
   };
 
   return (

@@ -1,11 +1,14 @@
 // lib/server/mock.ts
 import mock from "@/data/mock_scenes.json";
-import type { Product, SceneSummary, SearchQuery, SearchResponse } from "@/types";
+import type { Product, SearchQuery, SearchResponse, StacFeatureCollection } from "@/types";
+import { normalizeBBox } from "./search-query";
+import { getItemEndDate, getItemStartDate, getProductsFromStac, isStacFeatureCollection, stacItemToSceneSummary } from "./stac";
 
-type MockShape = { products: Product[]; scenes: SceneSummary[] };
-
-function asMock(): MockShape {
-  return mock as unknown as MockShape;
+function asStacMock(): StacFeatureCollection {
+  if (!isStacFeatureCollection(mock)) {
+    throw new Error("mock_scenes.json must be a STAC FeatureCollection");
+  }
+  return mock;
 }
 
 function toDateOnlyISO(dt: string) {
@@ -21,34 +24,35 @@ function intersectsBBox(a: [number, number, number, number], b: [number, number,
 }
 
 export function getMockProducts(): Product[] {
-  return asMock().products;
+  return getProductsFromStac(asStacMock());
 }
 
 export function searchMockScenes(q: SearchQuery): SearchResponse {
-  const { scenes } = asMock();
+  const { features } = asStacMock();
 
-  let filtered = scenes.slice();
+  let filtered = features.slice();
 
   if (q.product_id) {
-    filtered = filtered.filter((s) => s.product_id === q.product_id);
+    filtered = filtered.filter((item) => item.collection === q.product_id);
   }
 
   if (q.date_start) {
-    filtered = filtered.filter((s) => toDateOnlyISO(s.datetime_end) >= q.date_start!);
+    filtered = filtered.filter((item) => toDateOnlyISO(getItemEndDate(item)) >= q.date_start!);
   }
   if (q.date_end) {
-    filtered = filtered.filter((s) => toDateOnlyISO(s.datetime_start) <= q.date_end!);
+    filtered = filtered.filter((item) => toDateOnlyISO(getItemStartDate(item)) <= q.date_end!);
   }
 
-  if (q.roi_bbox) {
-    filtered = filtered.filter((s) => intersectsBBox(s.bbox, q.roi_bbox!));
+  const roiBBox = normalizeBBox(q.roi_bbox);
+  if (roiBBox) {
+    filtered = filtered.filter((item) => intersectsBBox(item.bbox, roiBBox));
   }
 
-  filtered.sort((a, b) => (a.datetime_start < b.datetime_start ? 1 : -1));
+  filtered.sort((a, b) => (getItemStartDate(a) < getItemStartDate(b) ? 1 : -1));
 
   const total = filtered.length;
   const start = (q.page - 1) * q.limit;
-  const items = filtered.slice(start, start + q.limit);
+  const items = filtered.slice(start, start + q.limit).map(stacItemToSceneSummary);
 
   return { total, page: q.page, limit: q.limit, items };
 }

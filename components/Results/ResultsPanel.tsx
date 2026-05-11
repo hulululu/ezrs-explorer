@@ -1,7 +1,9 @@
 "use client";
 
 import { useMemo, useState } from "react";
+import Image from "next/image";
 import type { SceneSummary, SearchResponse } from "@/types";
+import type { AppCopy } from "@/lib/i18n";
 
 export default function ResultsPanel({
   resp,
@@ -9,7 +11,8 @@ export default function ResultsPanel({
   selectedId,
   onSelect,
   onPage,
-  onHover
+  onHover,
+  copy
 }: {
   resp: SearchResponse;
   hasSearched?: boolean;
@@ -17,18 +20,19 @@ export default function ResultsPanel({
   onSelect: (scene_uid: string) => void;
   onPage: (p: number) => void;
   onHover?: (id?: string) => void;
+  copy: AppCopy["results"];
 }) {
   const totalPages = useMemo(() => Math.max(1, Math.ceil(resp.total / resp.limit)), [resp.total, resp.limit]);
 
   return (
     <div style={{ padding: 14 }}>
       <div style={{ display: "flex", alignItems: "baseline", justifyContent: "space-between" }}>
-        <h3 style={{ margin: "8px 0 6px", letterSpacing: -0.2 }}>Results</h3>
-        <span className="ui-badge">{resp.total} items</span>
+        <h3 style={{ margin: "8px 0 6px", letterSpacing: 0 }}>{copy.title}</h3>
+        <span className="ui-badge">{resp.total} {copy.items}</span>
       </div>
 
       <div className="ui-muted" style={{ fontSize: 12 }}>
-        Page <b>{resp.page}</b> / {totalPages}
+        {copy.page} <b>{resp.page}</b> / {totalPages}
       </div>
 
       <div style={{ marginTop: 12, display: "flex", flexDirection: "column", gap: 10 }}>
@@ -39,16 +43,17 @@ export default function ResultsPanel({
             selected={s.scene_uid === selectedId}
             onClick={() => onSelect(s.scene_uid)}
             onHover={onHover}
+            copy={copy}
           />
         ))}
         {resp.items.length === 0 && !hasSearched && (
           <div className="ui-muted" style={{ marginTop: 10, lineHeight: 1.45 }}>
-            검색 조건을 설정한 뒤 <b>Search</b>를 눌러 결과를 불러오세요.
+            {copy.emptyBefore}
           </div>
         )}
         {resp.items.length === 0 && hasSearched && (
           <div className="ui-muted" style={{ marginTop: 10 }}>
-            No results
+            {copy.emptyAfter}
           </div>
         )}
       </div>
@@ -61,7 +66,7 @@ export default function ResultsPanel({
           style={{ opacity: resp.page <= 1 ? 0.4 : 1, flex: 1 }}
           type="button"
         >
-          Prev
+          {copy.prev}
         </button>
         <button
           className="ui-btn"
@@ -70,7 +75,7 @@ export default function ResultsPanel({
           style={{ opacity: resp.page >= totalPages ? 0.4 : 1, flex: 1 }}
           type="button"
         >
-          Next
+          {copy.next}
         </button>
       </div>
     </div>
@@ -81,15 +86,18 @@ function SceneCard({
   scene,
   selected,
   onClick,
-  onHover
+  onHover,
+  copy
 }: {
   scene: SceneSummary;
   selected: boolean;
   onClick: () => void;
   onHover?: (id?: string) => void;
+  copy: AppCopy["results"];
 }) {
   const [imgFailed, setImgFailed] = useState(false);
-  const showImage = !!scene.assets.quicklook && !imgFailed;
+  const quicklook = scene.assets.quicklook;
+  const showImage = typeof quicklook === "string" && quicklook.length > 0 && !imgFailed;
 
   return (
     <div
@@ -130,9 +138,12 @@ function SceneCard({
         }}
       >
         {showImage ? (
-          <img
-            src={scene.assets.quicklook}
+          <Image
+            src={quicklook}
             alt={`${scene.title} quicklook`}
+            width={96}
+            height={66}
+            unoptimized
             style={{ width: "100%", height: "100%", objectFit: "cover" }}
             onError={() => setImgFailed(true)}
           />
@@ -150,7 +161,7 @@ function SceneCard({
               letterSpacing: 0.2
             }}
           >
-            No preview
+            {copy.noPreview}
           </div>
         )}
       </div>
@@ -170,7 +181,7 @@ function SceneCard({
         </div>
 
         <div className="ui-muted" style={{ fontSize: 12, marginTop: 6 }}>
-          {scene.datetime_start.slice(0, 10)} to {scene.datetime_end.slice(0, 10)}
+          {scene.datetime_start.slice(0, 10)} {copy.dateTo} {scene.datetime_end.slice(0, 10)}
         </div>
 
         <div className="ui-muted" style={{ fontSize: 12, marginTop: 3 }}>

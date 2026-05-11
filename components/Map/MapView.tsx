@@ -5,6 +5,7 @@ import maplibregl, { Map } from "maplibre-gl";
 import { useEffect, useMemo, useRef, useState } from "react";
 import type { SceneSummary } from "@/types";
 import type { Feature, FeatureCollection, GeoJsonProperties, Geometry, Polygon } from "geojson";
+import type { AppCopy } from "@/lib/i18n";
 
 const ROI_SOURCE = "roi-source";
 const ROI_LAYER = "roi-layer";
@@ -37,6 +38,8 @@ type Props = {
   showResults?: boolean;
   onToggleResults?: () => void;
   onResetRoi?: () => void;
+  layoutKey?: string;
+  copy: AppCopy["map"];
 };
 
 export default function MapView({
@@ -56,7 +59,9 @@ export default function MapView({
   showResultsToggle,
   showResults,
   onToggleResults,
-  onResetRoi
+  onResetRoi,
+  layoutKey,
+  copy
 }: Props) {
   const mapRef = useRef<Map | null>(null);
   const divRef = useRef<HTMLDivElement | null>(null);
@@ -66,6 +71,7 @@ export default function MapView({
   const onRoiBBoxChangeRef = useRef(onRoiBBoxChange);
   const onPickSceneRef = useRef(onPickScene);
   const onHoverSceneRef = useRef(onHoverScene);
+  const opacityRef = useRef(opacity);
 
   const drawBoxRef = useRef<HTMLDivElement | null>(null);
   const drawingRef = useRef(false);
@@ -92,6 +98,10 @@ export default function MapView({
   }, [onHoverScene]);
 
   useEffect(() => {
+    opacityRef.current = opacity;
+  }, [opacity]);
+
+  useEffect(() => {
     if (!divRef.current || mapRef.current) return;
 
     const map = new maplibregl.Map({
@@ -111,10 +121,10 @@ export default function MapView({
             type: "raster",
             source: "osm",
             paint: {
-              "raster-brightness-max": 0.65,
-              "raster-brightness-min": 0.12,
-              "raster-saturation": -0.45,
-              "raster-contrast": 0.28
+              "raster-brightness-max": 0.88,
+              "raster-brightness-min": 0.04,
+              "raster-saturation": -0.2,
+              "raster-contrast": 0.12
             }
           }
         ]
@@ -237,7 +247,7 @@ export default function MapView({
         id: ROI_LAYER,
         type: "line",
         source: ROI_SOURCE,
-        paint: { "line-width": 2, "line-color": "#d3e6ff", "line-opacity": 0.92 }
+        paint: { "line-width": 2, "line-color": "#2d7dd2", "line-opacity": 0.92 }
       });
 
       map.addSource(FOOT_SOURCE, { type: "geojson", data: emptyFC() });
@@ -245,20 +255,20 @@ export default function MapView({
         id: FOOT_LAYER,
         type: "line",
         source: FOOT_SOURCE,
-        paint: { "line-width": 2, "line-color": "#2bd9ff", "line-opacity": 0.52 }
+        paint: { "line-width": 2, "line-color": "#2d7dd2", "line-opacity": 0.56 }
       });
       map.addLayer({
         id: FOOT_HOVER_LAYER,
         type: "line",
         source: FOOT_SOURCE,
-        paint: { "line-width": 2.6, "line-color": "#ffd166", "line-opacity": 0.96 },
+        paint: { "line-width": 2.6, "line-color": "#4a94e8", "line-opacity": 0.96 },
         filter: ["==", ["get", "scene_uid"], NONE_UID]
       });
       map.addLayer({
         id: FOOT_SEL_LAYER,
         type: "line",
         source: FOOT_SOURCE,
-        paint: { "line-width": 3.4, "line-color": "#31f5ff", "line-opacity": 1 },
+        paint: { "line-width": 3.4, "line-color": "#0b1f3a", "line-opacity": 1 },
         filter: ["==", ["get", "scene_uid"], NONE_UID]
       });
 
@@ -267,8 +277,8 @@ export default function MapView({
 
       const box = document.createElement("div");
       box.style.position = "absolute";
-      box.style.border = "2px solid #9cd8ff";
-      box.style.background = "rgba(44, 219, 255, 0.14)";
+      box.style.border = "2px solid #2d7dd2";
+      box.style.background = "rgba(45, 125, 210, 0.14)";
       box.style.pointerEvents = "none";
       box.style.display = "none";
       box.style.zIndex = "10";
@@ -364,12 +374,13 @@ export default function MapView({
     if (map.getSource(RASTER_SOURCE)) map.removeSource(RASTER_SOURCE);
 
     const previewTiles = selectedScene?.assets?.preview_tiles;
-    if (!previewTiles) return;
+    if (!selectedScene || !previewTiles) return;
 
     map.addSource(RASTER_SOURCE, {
       type: "raster",
       tiles: [previewTiles],
-      tileSize: 256
+      tileSize: 256,
+      bounds: selectedScene.bbox
     });
 
     map.addLayer(
@@ -377,11 +388,11 @@ export default function MapView({
         id: RASTER_LAYER,
         type: "raster",
         source: RASTER_SOURCE,
-        paint: { "raster-opacity": opacity }
+        paint: { "raster-opacity": opacityRef.current }
       },
       FOOT_LAYER
     );
-  }, [ready, selectedScene, opacity]);
+  }, [ready, selectedScene]);
 
   useEffect(() => {
     const map = mapRef.current;
@@ -391,38 +402,53 @@ export default function MapView({
     }
   }, [ready, opacity]);
 
+  useEffect(() => {
+    const map = mapRef.current;
+    if (!map || !ready) return;
+
+    const resize = () => map.resize();
+    resize();
+    const frame = window.requestAnimationFrame(resize);
+    const timeout = window.setTimeout(resize, 180);
+
+    return () => {
+      window.cancelAnimationFrame(frame);
+      window.clearTimeout(timeout);
+    };
+  }, [ready, layoutKey]);
+
   return (
     <div style={{ position: "relative", width: "100%", height: "100%" }}>
       <div ref={divRef} style={{ width: "100%", height: "100%" }} />
 
-      <div className="ui-glass" style={{ position: "absolute", left: 12, top: 12, zIndex: 30, display: "flex", gap: 8, padding: 8 }}>
+      <div className="ui-glass" style={{ position: "absolute", left: 12, top: 12, zIndex: 30, display: "flex", gap: 6, padding: 6 }}>
         <button
           onClick={onToggleRoiMode}
-          className={roiEditMode ? "ui-btn ui-btn-primary" : "ui-btn"}
+          className={roiEditMode ? "ui-btn ui-btn-primary ui-btn-compact" : "ui-btn ui-btn-compact"}
           type="button"
-          title="Toggle ROI edit mode"
+          title={copy.roiToggleTitle}
         >
-          ROI {roiEditMode ? "ON" : "OFF"}
+          ROI {roiEditMode ? copy.roiOn : copy.roiOff}
         </button>
         {roiEditMode ? (
-          <button onClick={onStopRoiMode} className="ui-btn" type="button" title="Stop ROI edit mode">
-            Done
+          <button onClick={onStopRoiMode} className="ui-btn ui-btn-compact" type="button" title={copy.doneTitle}>
+            {copy.done}
           </button>
         ) : null}
-        <button onClick={onResetRoi} className="ui-btn" type="button" title="Reset ROI to default">
-          Reset ROI
+        <button onClick={onResetRoi} className="ui-btn ui-btn-compact" type="button" title={copy.resetRoiTitle}>
+          {copy.resetRoi}
         </button>
       </div>
 
       {roiEditMode ? (
         <div className="ui-glass ui-muted" style={{ position: "absolute", left: 12, top: 62, zIndex: 30, padding: "7px 10px", fontSize: 12 }}>
-          ROI mode ON: drag on map to set bbox.
+          {copy.roiHelp}
         </div>
       ) : null}
       {showResultsToggle ? (
         <div className="ui-glass" style={{ position: "absolute", left: 12, top: roiEditMode ? 120 : 80, zIndex: 30, padding: 8 }}>
           <button className="ui-btn" type="button" onClick={onToggleResults}>
-            {showResults ? "Hide Results" : "Show Results"}
+            {showResults ? copy.hideResults : copy.showResults}
           </button>
         </div>
       ) : null}
@@ -439,7 +465,7 @@ export default function MapView({
           zIndex: 30
         }}
       >
-        <div style={{ fontWeight: 800, marginBottom: 6, letterSpacing: -0.1 }}>Overlay</div>
+        <div style={{ fontWeight: 800, marginBottom: 6, letterSpacing: 0 }}>{copy.overlay}</div>
         <input
           type="range"
           min={0}
@@ -447,13 +473,13 @@ export default function MapView({
           step={0.01}
           value={opacity}
           onChange={(e) => onOpacity(Number(e.target.value))}
-          style={{ width: "100%", accentColor: "var(--accent2)" }}
+          style={{ width: "100%", accentColor: "var(--overlay-blue)" }}
         />
         <div className="ui-muted" style={{ marginTop: 6 }}>
-          Selected: {selectedId ?? "None"}
+          {copy.selected}: {selectedId ?? copy.none}
         </div>
         <div className="ui-muted" style={{ marginTop: 4 }}>
-          ROI mode: <b style={{ color: "var(--text)" }}>{roiEditMode ? "ON" : "OFF"}</b>
+          {copy.roiMode}: <b style={{ color: "var(--text)" }}>{roiEditMode ? copy.roiOn : copy.roiOff}</b>
         </div>
       </div>
     </div>

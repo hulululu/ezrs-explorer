@@ -1,29 +1,32 @@
 "use client";
 
 import type { Product, SearchQuery } from "@/types";
+import type { AppCopy } from "@/lib/i18n";
 
 export default function SearchPanel({
   products,
   query,
   onChange,
-  onSearch
+  onSearch,
+  copy
 }: {
   products: Product[];
   query: SearchQuery;
   onChange: (patch: Partial<SearchQuery>) => void;
   onSearch: () => void;
+  copy: AppCopy["search"];
 }) {
   const roi = query.roi_bbox ?? [0, 0, 0, 0];
 
   return (
     <div style={{ padding: 14 }}>
       <div style={{ margin: "6px 0 12px", display: "flex", alignItems: "center", justifyContent: "space-between" }}>
-        <h3 style={{ margin: 0, letterSpacing: -0.1 }}>Search</h3>
-        <span className="ui-badge">Filters</span>
+        <h3 style={{ margin: 0, letterSpacing: 0 }}>{copy.title}</h3>
+        <span className="ui-badge">{copy.badge}</span>
       </div>
 
       <label className="ui-label" htmlFor="product-select">
-        Product
+        {copy.product}
       </label>
       <select
         id="product-select"
@@ -31,7 +34,7 @@ export default function SearchPanel({
         value={query.product_id ?? ""}
         onChange={(e) => onChange({ product_id: e.target.value || undefined, page: 1 })}
       >
-        <option value="">(All)</option>
+        <option value="">{copy.allProducts}</option>
         {products.map((p) => (
           <option key={p.product_id} value={p.product_id}>
             {p.name}
@@ -42,11 +45,15 @@ export default function SearchPanel({
       <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 10, marginTop: 12 }}>
         <div>
           <label className="ui-label" htmlFor="date-start">
-            Date start
+            {copy.dateStart}
           </label>
           <input
             id="date-start"
-            type="date"
+            type="text"
+            inputMode="numeric"
+            maxLength={10}
+            pattern="\d{4}-\d{2}-\d{2}"
+            placeholder={copy.datePlaceholder}
             className="ui-input"
             value={query.date_start ?? ""}
             onChange={(e) => onChange({ date_start: e.target.value || undefined, page: 1 })}
@@ -54,11 +61,15 @@ export default function SearchPanel({
         </div>
         <div>
           <label className="ui-label" htmlFor="date-end">
-            Date end
+            {copy.dateEnd}
           </label>
           <input
             id="date-end"
-            type="date"
+            type="text"
+            inputMode="numeric"
+            maxLength={10}
+            pattern="\d{4}-\d{2}-\d{2}"
+            placeholder={copy.datePlaceholder}
             className="ui-input"
             value={query.date_end ?? ""}
             onChange={(e) => onChange({ date_end: e.target.value || undefined, page: 1 })}
@@ -68,12 +79,12 @@ export default function SearchPanel({
 
       <div className="ui-panel" style={{ marginTop: 12, padding: 10 }}>
         <div className="ui-label" style={{ marginBottom: 8 }}>
-          ROI BBox
+          {copy.roiBBox}
         </div>
         <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 10 }}>
           <div>
             <label className="ui-label" style={{ fontSize: 11 }} htmlFor="roi-min-lon">
-              Min Lon
+              {copy.minLon}
             </label>
             <input
               id="roi-min-lon"
@@ -86,7 +97,7 @@ export default function SearchPanel({
           </div>
           <div>
             <label className="ui-label" style={{ fontSize: 11 }} htmlFor="roi-min-lat">
-              Min Lat
+              {copy.minLat}
             </label>
             <input
               id="roi-min-lat"
@@ -99,7 +110,7 @@ export default function SearchPanel({
           </div>
           <div>
             <label className="ui-label" style={{ fontSize: 11 }} htmlFor="roi-max-lon">
-              Max Lon
+              {copy.maxLon}
             </label>
             <input
               id="roi-max-lon"
@@ -112,7 +123,7 @@ export default function SearchPanel({
           </div>
           <div>
             <label className="ui-label" style={{ fontSize: 11 }} htmlFor="roi-max-lat">
-              Max Lat
+              {copy.maxLat}
             </label>
             <input
               id="roi-max-lat"
@@ -126,13 +137,18 @@ export default function SearchPanel({
         </div>
       </div>
 
-      <button className="ui-btn ui-btn-primary" onClick={onSearch} style={{ width: "100%", marginTop: 14 }} type="button">
-        Search
+      <button
+        className="ui-btn ui-btn-search"
+        onClick={onSearch}
+        style={{ width: "100%", marginTop: 14, backgroundColor: "#081D36", borderColor: "#081D36", color: "#ffffff" }}
+        type="button"
+      >
+        {copy.search}
       </button>
 
       <div className="ui-muted" style={{ marginTop: 12, fontSize: 12, lineHeight: 1.4 }}>
-        * Phase 1: mock data filter only
-        <br />* Map overlay uses <code>assets.preview_tiles</code>
+        * {copy.note1}
+        <br />* {copy.note2}
       </div>
     </div>
   );
